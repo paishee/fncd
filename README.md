@@ -1,5 +1,6 @@
 # fncdt
-JavaScript package allowing you to see function data like body and arguments from outside of the function
+JavaScript package allowing you to see function data like body and arguments from outside of the function<br>
+it uses try catches to correct mistakes dynamically and bunch all of them into one simple class
 
 - lightweight
 - easy to use
