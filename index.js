@@ -129,4 +129,6 @@ class FunctionData {
 }
 
 
-module.exports = FunctionData;
+module.exports = { FunctionData, fetch(f) {
+    return new FunctionData(f);
+}};
