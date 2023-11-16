@@ -1,18 +1,18 @@
 {
-    "name": "fncdt",
+    "name": "fndt",
     "version": "1.0.0",
     "author": "paishee",
     "description": "JavaScript package allowing you to see function data like body and arguments from outside of the function",
     "repository": {
         "type": "git",
-        "url": "https://github.com/paishee/fncdt.git"
+        "url": "https://github.com/paishee/fndt.git"
     },
     "bugs": {
-        "url": "https://github.com/paishee/fncdt/issues"
+        "url": "https://github.com/paishee/fndt/issues"
     },
     "license": {
         "type": "MIT",
-        "url": "https://github.com/paishee/fncdt/blob/main/LICENSE"
+        "url": "https://github.com/paishee/fndt/blob/main/LICENSE"
     },
     "dependencies": {
         "stews": "latest"
@@ -26,6 +26,6 @@
         "aepl",
         "stews"
     ],
-    "homepage": "https://github.com/paishee/fncdt",
+    "homepage": "https://github.com/paishee/fndt",
     "main": "index.js"
 }
