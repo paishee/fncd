@@ -46,8 +46,8 @@ FunctionData {
     dataName: "test",
     body: "console.log(a, b);",
     arguments: { a: null, b: "placeholder" },
-    async: false,
-    arrow: false,
+    isAsync: false,
+    isArrow: false,
     data: Function,
     string: "function test(a, b="placeholder") {
         console.log(a, b);
