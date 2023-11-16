@@ -1,5 +1,5 @@
 /* 
-    # fncd #
+    # fncdt #
     ## by paishee ##
 
     (this shit is messy mb)
