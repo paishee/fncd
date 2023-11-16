@@ -23,6 +23,7 @@ class FunctionData {
         let strf = new Noodle(f.toString());
         let isArrow = false;
 
+
         // fixing arrow functions
         if (strf[0] == "(" ) {
             strf.pull("function");
@@ -167,8 +168,8 @@ class FunctionData {
         }
 
 
-        this.name = name; // name of the function
-        this.dataName = f.name; // name of the original function
+        this.name = (name != "") ? name : null; // name of the function if not given default to null
+        this.dataName = (f.name != "") ? f.name : null; // name of the original function if not given default to null
 
 
         let isAsync = strf.startsWith("async");
