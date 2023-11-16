@@ -132,7 +132,7 @@ class FunctionData {
             .replace(`${name}`, "").trim()
             .replace(`(${ (argsCopy.toString()) ? argsCopy.toString() : "" })`, "").trim()
         
-        this.body = this.body.slice(1, this.body.length-1);
+        this.body = this.body.slice(1, this.body.length-1).trim();
 
 
         // function arguments
