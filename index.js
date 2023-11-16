@@ -8,7 +8,7 @@ class FunctionData {
 
 
         // fixing arrow functions
-        if (strf[0] == "(") { 
+        if (strf[0] == "(") {
             strf.pull("function");
             strf = strf.replace("=>", "");
         }
@@ -16,7 +16,13 @@ class FunctionData {
 
         // getting the argument indexes
         let [s, e] = [ strf.indexOf("(")+1, strf.indexOf(")") ];
-        var stra = strf.slice(s, e)
+        var stra = strf.slice(s, e);
+
+        let argsCopy = stra.toString();
+
+
+        // name fix
+        let name = strf.toString().slice(0, s-1).replace("function", "").trim();
 
 
         // function variables
@@ -104,13 +110,14 @@ class FunctionData {
         }
 
 
-        this.name = f.name; // name of the function
+        this.name = name; // name of the function
 
 
         // body of the function
         this.body = strf.toString()
             .replace("function", "").trim()
-            .replace(`(${ (stra.content) ? stra.content : "" })`, "").trim()
+            .replace(`${name}`, "").trim()
+            .replace(`(${ (argsCopy.toString()) ? argsCopy.toString() : "" })`, "").trim()
         
         this.body = this.body.slice(1, this.body.length-1);
 
