@@ -111,6 +111,7 @@ class FunctionData {
 
 
         this.name = name; // name of the function
+        this.dataName;
 
 
         // body of the function
@@ -128,6 +129,7 @@ class FunctionData {
 
         // function data
         (new Function('t', `t.data = ${strf.toString()}`))(this);
+        this.dataName = this.data.name;
 
 
         // a string version of the function
