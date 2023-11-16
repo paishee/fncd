@@ -8,6 +8,15 @@ it uses try catches to correct mistakes dynamically and bunch all of them into o
 
 <br>
 
+```console
+npm i fndt
+```
+```console
+npm i paishee/fndt
+```
+
+<br>
+
 <table>
 <tr>
 <td>JS</td><td>Output</td>
