@@ -34,6 +34,7 @@ class FunctionData {
 
         // fixing async arrow functions
         else if (strf.replace("async", "").trim()[0] == "(") {
+            strf = strf.replace("async", "").trim()
             strf.pull("async function");
             strf = strf.replace("=>", "");
             isArrow = true;
@@ -58,7 +59,7 @@ class FunctionData {
 
 
         // name fix
-        let name = strf.toString().slice(0, s-1).replace("function", "").replace("async", "").trim();
+        let name = strf.toString().slice(0, s-1).trim().replace("function", "").trim().replace("async", "").trim();
 
 
         // function variables
@@ -168,8 +169,8 @@ class FunctionData {
         }
 
 
-        this.name = (name != "") ? name : null; // name of the function if not given default to null
-        this.dataName = (f.name != "") ? f.name : null; // name of the original function if not given default to null
+        this.name = (name != "") ? name : null; // name of the function
+        this.dataName = (f.name != "") ? f.name : null; // name of the original function
 
 
         let isAsync = strf.startsWith("async");
@@ -178,10 +179,13 @@ class FunctionData {
         // body of the function
         this.body = strf.toString()
             .replace("function", "").trim() // remove the function text
-            .replace(`${name}`, "").trim() // remove the name of the function
-            .replace(`(${ (argsCopy.toString()) ? argsCopy.toString() : "" })`, "").trim() // remove the arguments
 
-        if (isAsync) this.body = this.body.replace("async", "").trim();
+        if (isAsync) this.body = this.body.replace("async", "").trim(); // remove the async text
+            
+        if (name) this.body = this.body.replace(`${name}`, "").trim() // remove the name of the function
+        
+        if (argsExist) this.body = this.body.replace(`(${ (argsCopy.toString()) ? argsCopy.toString() : "" })`, "").trim() // remove the arguments
+        else this.body = this.body.replace("()", "").trim();
         
         this.body = this.body.slice(1, this.body.length-1).trim(); // remove the brackets
 
