@@ -21,12 +21,21 @@ const { Noodle, Soup } = require('stews');
 class FunctionData {
     constructor(f) {
         let strf = new Noodle(f.toString());
-
+        let isArrow = false;
 
         // fixing arrow functions
-        if (strf[0] == "(") {
+        if (strf[0] == "(" ) {
             strf.pull("function");
             strf = strf.replace("=>", "");
+            isArrow = true;
+        }
+
+
+        // fixing async arrow functions
+        else if (strf.replace("async", "").trim()[0] == "(") {
+            strf.pull("async function");
+            strf = strf.replace("=>", "");
+            isArrow = true;
         }
         
 
@@ -48,7 +57,7 @@ class FunctionData {
 
 
         // name fix
-        let name = strf.toString().slice(0, s-1).replace("function", "").trim();
+        let name = strf.toString().slice(0, s-1).replace("function", "").replace("async", "").trim();
 
 
         // function variables
@@ -162,11 +171,16 @@ class FunctionData {
         this.dataName = f.name; // name of the original function
 
 
+        let isAsync = strf.startsWith("async");
+
+
         // body of the function
         this.body = strf.toString()
             .replace("function", "").trim() // remove the function text
             .replace(`${name}`, "").trim() // remove the name of the function
             .replace(`(${ (argsCopy.toString()) ? argsCopy.toString() : "" })`, "").trim() // remove the arguments
+
+        if (isAsync) this.body = this.body.replace("async", "").trim();
         
         this.body = this.body.slice(1, this.body.length-1).trim(); // remove the brackets
 
@@ -176,6 +190,14 @@ class FunctionData {
             .map( (k, v, i) => (typeof v == "string") ? v.trim() : v) // remove white space in values
             .mapKeys( (k, v, i) => (typeof k == "string") ? k.trim() : k ) // remove white space in keys
             .pour(); // pour down into an object
+
+        
+        // if it's an async function    
+        this.isAsync = isAsync;
+
+
+        // if it's an arrow function
+        this.isArrow = isArrow;
 
 
         // function data
