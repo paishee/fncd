@@ -2,7 +2,7 @@
     "name": "fncdt",
     "version": "1.0.0",
     "author": "paishee",
-    "description": "JavaScript package allowing you to see function data like body and arguments from the outside",
+    "description": "JavaScript package allowing you to see function data like body and arguments from outside of the function",
     "repository": {
         "type": "git",
         "url": "https://github.com/paishee/fncdt.git"
