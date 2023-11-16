@@ -2,7 +2,7 @@ const util = require('util');
 const { Noodle } = require('stews');
 
 
-class fncd {
+class FunctionData {
     constructor(f) {
         let strf = new Noodle(f.toString());
 
@@ -129,4 +129,4 @@ class fncd {
 }
 
 
-module.exports = fncd;
+module.exports = FunctionData;
