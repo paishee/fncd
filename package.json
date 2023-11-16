@@ -1,0 +1,31 @@
+{
+    "name": "fncd",
+    "version": "1.0.0",
+    "author": "paishee",
+    "description": "JavaScript package allowing you to see function data like body and arguments from the outside",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/paishee/fncd.git"
+    },
+    "bugs": {
+        "url": "https://github.com/paishee/fncd/issues"
+    },
+    "license": {
+        "type": "MIT",
+        "url": "https://github.com/paishee/fncd/blob/main/LICENSE"
+    },
+    "dependencies": {
+        "stews": "latest"
+    },
+    "keywords": [
+        "nodejs",
+        "function",
+        "functions",
+        "lightweight",
+        "backend",
+        "aepl",
+        "stews"
+    ],
+    "homepage": "https://github.com/paishee/fncd",
+    "main": "index.js"
+}
