@@ -15,7 +15,8 @@
         "url": "https://github.com/paishee/fndt/blob/main/LICENSE"
     },
     "dependencies": {
-        "stews": "latest"
+        "stews": "latest",
+        "aepl": "latest"
     },
     "keywords": [
         "nodejs",
