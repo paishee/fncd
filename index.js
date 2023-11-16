@@ -1,7 +1,19 @@
+/* 
+    # fncd #
+    ## by paishee ##
+
+    (this shit is messy mb)
+*/
+
+
+
+// imports
 const util = require('util');
 const { Noodle } = require('stews');
 
 
+
+// function data class
 class FunctionData {
     constructor(f) {
         let strf = new Noodle(f.toString());
@@ -128,7 +140,11 @@ class FunctionData {
 
 
         // function data
-        (new Function('t', `t.data = ${strf.toString()}`))(this);
+        try {
+            (new Function('t', `t.data = ${strf.toString()}`))(this);
+        } catch {
+            this.data = f;
+        }
 
 
         // a string version of the function
@@ -137,6 +153,8 @@ class FunctionData {
 }
 
 
+
+// exports
 module.exports = { FunctionData, fetch(f) {
     return new FunctionData(f);
 }};
