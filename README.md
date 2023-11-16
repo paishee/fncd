@@ -44,10 +44,10 @@ console.log(fndt.fetch(test));
 FunctionData {
     name: "test",
     dataName: "test",
-    async: false,
-    arrow: false,
     body: "console.log(a, b);",
     arguments: { a: null, b: "placeholder" },
+    async: false,
+    arrow: false,
     data: Function,
     string: "function test(a, b="placeholder") {
         console.log(a, b);
