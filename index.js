@@ -1,6 +1,10 @@
 /* 
-    # fncdt #
+    # fndt #
     ## by paishee ##
+    
+    ### links ###
+    - https://github.com/paishee/fndt
+    - https://npmjs.com/package/fndt
 
     (this shit is messy mb)
 */
