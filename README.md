@@ -44,6 +44,7 @@ console.log(fndt.fetch(test));
 FunctionData {
     name: "test",
     dataName: "test",
+    async: false,
     body: "console.log(a, b);",
     arguments: { a: null, b: "placeholder" },
     data: Function,
