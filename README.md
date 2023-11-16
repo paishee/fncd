@@ -16,7 +16,7 @@ JavaScript package allowing you to see function data like body and arguments fro
 const fncdt = require('fncdt');
 
 
-function test(a, b="placeholder") {
+function test(a, b="placeholder") {        
     console.log(a, b);
 }
 
