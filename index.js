@@ -9,7 +9,7 @@
 
 // imports
 const util = require('util');
-const { Noodle } = require('stews');
+const { Noodle, Soup } = require('stews');
 
 
 
@@ -43,9 +43,8 @@ class FunctionData {
 
 
         // loop
-        if (stra.length > 0) {
+        if (stra.length > 0 || (eval(`"${stra.content}"`).length > 0 && stra.content) ) {
             while (true) {
-
                 try {
                     fnr = (new Function(fnv.toString()))(); // fnr = function result
                     break;
@@ -136,7 +135,10 @@ class FunctionData {
 
 
         // function arguments
-        this.arguments = fnr;
+        this.arguments = Soup.from(fnr)
+            .map( (k, v, i) => (typeof v == "string") ? v.trim() : v)
+            .mapKeys( (k, v, i) => (typeof k == "string") ? k.trim() : k )
+            .pour();
 
 
         // function data
