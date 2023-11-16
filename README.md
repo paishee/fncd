@@ -45,6 +45,7 @@ FunctionData {
     name: "test",
     dataName: "test",
     async: false,
+    arrow: false,
     body: "console.log(a, b);",
     arguments: { a: null, b: "placeholder" },
     data: Function,
