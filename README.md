@@ -1,4 +1,4 @@
-# fncdt
+# fndt
 JavaScript package allowing you to see function data like body and arguments from outside of the function<br>
 it uses try catches to correct mistakes dynamically and bunch all of them into one simple class
 
@@ -16,7 +16,7 @@ it uses try catches to correct mistakes dynamically and bunch all of them into o
 <td>
   
 ```js
-const fncdt = require('fncdt');
+const fndt = require('fndt');
 
 
 function test(a, b="placeholder") {       
@@ -24,7 +24,7 @@ function test(a, b="placeholder") {
 }
 
 
-console.log(fncdt.fetch(test));
+console.log(fndt.fetch(test));
 ```
 
 </td>
