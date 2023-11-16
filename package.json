@@ -24,7 +24,8 @@
         "lightweight",
         "backend",
         "aepl",
-        "stews"
+        "stews",
+        "fndt"
     ],
     "homepage": "https://github.com/paishee/fndt",
     "main": "index.js"
