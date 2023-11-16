@@ -28,7 +28,7 @@ class FunctionData {
 
         // getting the argument indexes
         let [s, e] = [ strf.indexOf("(")+1, strf.indexOf(")") ];
-        var stra = strf.slice(s, e);
+        var stra = strf.slice(s, e).bunch();
 
         let argsCopy = stra.toString();
 
