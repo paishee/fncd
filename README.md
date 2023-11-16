@@ -5,6 +5,8 @@ JavaScript package allowing you to see function data like body and arguments fro
 - easy to use
 - open source
 
+<br>
+
 <table>
 <tr>
 <td>JS</td><td>Output</td>
@@ -16,7 +18,7 @@ JavaScript package allowing you to see function data like body and arguments fro
 const fncdt = require('fncdt');
 
 
-function test(a, b="placeholder") {        
+function test(a, b="placeholder") {       
     console.log(a, b);
 }
 
