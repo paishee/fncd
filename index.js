@@ -288,7 +288,7 @@ class FunctionData {
                 .map( (k, v, i) => {
                     try {
                         return new Function(`return ${v};`)();
-                    } catch() {
+                    } catch {
                         return v;
                     }
                 })
