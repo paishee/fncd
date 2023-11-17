@@ -2,9 +2,10 @@
 JavaScript package allowing you to see function data like body and arguments from outside of the function<br>
 it uses try catches to correct mistakes dynamically and bunch all of them into one simple class
 
-- lightweight
 - easy to use
 - open source
+- advanced scoping
+- argument fetching
 
 <br>
 
@@ -33,7 +34,9 @@ function test(a, b="placeholder") {
 }
 
 
-console.log(fndt.fetch(test));
+fndt.fetch(test, (data) => {
+    console.log(data);
+});
 ```
 
 </td>
@@ -42,6 +45,7 @@ console.log(fndt.fetch(test));
 
 ```js
 FunctionData {
+    pending: false,
     name: "test",
     dataName: "test",
     body: "console.log(a, b);",
