@@ -358,9 +358,11 @@ class FunctionData {
 
 // exports
 module.exports = { 
+    
     FunctionData: cl.init("FunctionData", FunctionData), 
 
     fetch(f, callback) {
         return (new FunctionData(f, callback));
     }
+    
 };
