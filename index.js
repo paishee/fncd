@@ -36,7 +36,7 @@ const err = ( message ) => {
 
 // function data class
 class FunctionData {
-    constructor(f, callback, catcher) {
+    constructor(sync=false, f, callback, catcher) {
         if (!f) err("No function given");
 
 
@@ -67,9 +67,7 @@ class FunctionData {
         }
 
 
-        // immediately get the main code is ran it actually gets the data that way it doesn't delay code
-        setImmediate( () => {try {
-
+        const fetcher = () =>  {try {
 
             // turn the function into a string and remove duplicate spaces
             let strf = new Noodle(f.toString()).replace(/ +(?= )/g, "");
@@ -364,8 +362,16 @@ class FunctionData {
             penders.forEach( p => p(this) );
         } catch(e) {
             this.pending = false;
-            catchers.forEach( c => c(e, this) );
-        }});
+
+            if (catchers.length > 0) catchers.forEach( c => c(e, this) );
+            else throw e;
+        }};
+
+
+
+        // immediately get the main code is ran it actually gets the data that way it doesn't delay code
+        if (!sync) setImmediate(fetcher);
+        else fetcher();
     }
 }
 
@@ -376,8 +382,14 @@ module.exports = {
     
     FunctionData: cl.init("FunctionData", FunctionData), 
 
-    fetch(f, callback, catcher) {
-        return new FunctionData(f, callback, catcher);
+    
+    fetch(...args) {
+        return new FunctionData(false, ...args);
+    },
+
+
+    fetchSync(...args) {
+        return new FunctionData(true, ...args);
     }
     
 };
