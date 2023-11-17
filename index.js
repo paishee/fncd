@@ -12,211 +12,355 @@
 
 
 // imports
+const cl = require('aepl');
 const util = require('util');
 const { Noodle, Soup } = require('stews');
 
 
 
+// scope functions
+const isStringChar = (char) => [`"`, `'`, "`"].includes(char);
+const hasStringChar = (string) => string.split(``).some(isStringChar);
+
+
+
+// errors
+const err = ( message ) => { 
+    let e = new Error(message);
+    e.name = "FndtError";
+
+    throw e;
+};
+
+
+
 // function data class
 class FunctionData {
-    constructor(f) {
-        let strf = new Noodle(f.toString());
-        let isArrow = false;
+    constructor(f, callback) {
+        if (!f) err("No function given");
 
 
-        // fixing arrow functions
-        if (strf[0] == "(" ) {
-            strf.pull("function");
-            strf = strf.replace("=>", "");
-            isArrow = true;
-        }
+        // pending stuff
+        this.pending = true;
+        var penders = [];
 
 
-        // fixing async arrow functions
-        else if (strf.replace("async", "").trim()[0] == "(") {
-            strf = strf.replace("async", "").trim()
-            strf.pull("async function");
-            strf = strf.replace("=>", "");
-            isArrow = true;
-        }
-        
-
-        // getting the argument indexes
-        let [s, e] = [ strf.indexOf("(")+1, strf.indexOf(")") ];
-        var stra = strf.slice(s, e)
+        // then function
+        this.__proto__.then = (callback) => { penders.push(callback); return callback };
+        if (callback) this.then(callback);
 
 
-        // if arguments exist
-        let argsExist = stra.length > 0 || (eval(`"${stra.content}"`).length > 0 && stra.content)
-
-
-        // if arguments exist bunch them up
-        if (argsExist) stra = stra.bunch();
-
-
-        // creates a shallow copy of the arguments for use in the body
-        let argsCopy = stra.toString();
-
-
-        // name fix
-        let name = strf.toString().slice(0, s-1).trim().replace("function", "").trim().replace("async", "").trim();
-
-
-        // function variables
-        var fnv = Noodle.from(`return {${stra}}`);
-        var fnr = {};
-
-
-        // loop
-        if (argsExist) {
-            while (true) {
-
-                // first try catch to see if it can be turned into an object
-                // for some reason Function and eval give different outputs so this one uses Function
-                
-                try {
-
-                    fnr = (new Function(fnv.toString()))(); // fnr = function result
-                    break; // once it has finished it breaks the loop
-
-
-                // catches errors
-                } catch(e) {
-
-                    var pt; // the part of the code the error is in
-                    var uie = util.inspect(e); // uie = util inspect error
-                    
-                    if (e.name == "ReferenceError") { // if it's a reference error
-
-                        uie = uie.slice( // slice it to get the first stuff of it
-                            uie.indexOf(`at eval (eval at ${this.constructor.name}`), // start
-                            uie.indexOf(`at new ${this.constructor.name}`) // end
-                        );
-
-                        let slcr = "<anonymous>:"; // thing to slice by
-
-                        uie = uie.slice( // second slice to get the line and part of the code
-                            uie.indexOf(slcr)+slcr.length, // start
-                            uie.lastIndexOf(")") // end
-                        );
-
-                        pt = uie.split(":")[1]; // gets the part
-
-                        fnv.append(pt, ":null"); // defines anything with no default value as null
-                    }
-
-
-                    else if (e.name == "SyntaxError") { // if it's a syntax error
-                        
-                        // second try catch which uses eval instead of Function for specific details
-                        
-                        try {
-                            
-                            eval(fnv.toString().replace("return ", "")); // removes the return statement for the eval
-                        
-
-                        // catches any new errors from the eval
-                        } catch(ets) { // ets = e the second
-
-                            // checks if the cause is because something isn't defined
-                            if (ets.message.endsWith("is not defined")) {
-
-                                var uiets = util.inspect(ets); // uiets = util inspect e the second
-
-                                uiets = uiets.slice( // slice again to get the stuff
-                                    uiets.indexOf(`at eval (eval at ${this.constructor.name}`), // start
-                                    uiets.indexOf(`at new ${this.constructor.name}`) // end
-                                );
-            
-                                let slcr = "<anonymous>:"; // thing to slice by
-            
-                                uiets = uiets.slice( // second slice to get the line and part of the code
-                                    uiets.indexOf(slcr)+slcr.length, // start
-                                    uiets.lastIndexOf(")") // end
-                                );
-            
-                                pt = uiets.split(":")[1]; // gets the part
-
-                                stra.append(pt-1, ":null"); // defines anything with no default value as null
-                            }
-
-
-                            // if it's an unexpected token telling it that there's an issue with the thing defined
-                            else if (ets.message == "Unexpected token ':'") {
-
-                                stra.set(pt-1, ""); // remove equal signs
-
-                                // redefine the arguments string
-                                stra = ((str=stra.toString()) => new Noodle(
-                                    `${
-                                        str.substr(0, pt-2) // sub out the beginning
-                                    }:${
-                                        // remove the "null" but leave the rest at the end
-                                        ((sub=str.substr(pt-1, str.length)) => sub.slice(4, sub.length))()
-                                    }`
-                                ))();
-                            }
-
-                            else throw ets; // if it's neither throw the error as is
-
-                            fnv = Noodle.from(`return {${stra}}`); // redefine fnv
-                        }
-                    }
-
-                    else throw e; // if it's neither throw the error as is
-                }
+        // inspect function
+        this.__proto__[util.inspect.custom] = (depth) => {
+            if (this.pending) {
+                return `FunctionData \x1b[33m\x1b[3m[pending]\x1b[0m`;
+            }
+            else {
+                return `FunctionData ${ util.inspect(Object.fromEntries(Object.entries(this)), { colors: true } ) }`;
             }
         }
 
 
-        this.name = (name != "") ? name : null; // name of the function
-        this.dataName = (f.name != "") ? f.name : null; // name of the original function
+        // immediately get the main code is ran it actually gets the data that way it doesn't delay code
+        setImmediate( () => {
 
 
-        let isAsync = strf.startsWith("async");
+            // turn the function into a string and remove duplicate spaces
+            let strf = new Noodle(f.toString()).replace(/ +(?= )/g, "");
+            let isArrow = false;
 
 
-        // body of the function
-        this.body = strf.toString()
-            .replace("function", "").trim() // remove the function text
+            // if the function is native code throw an error
+            if (strf.has("[native code]")) err("Cannot fetch from native code.");
 
-        if (isAsync) this.body = this.body.replace("async", "").trim(); // remove the async text
+
+
+            // fixing arrow functions
+            if (strf[0] == "(" ) {
+                strf.pull("function");
+                strf = strf.replace("=>", "");
+                isArrow = true;
+            }
+
+
+
+            // fixing async arrow functions
+            else if (strf.replace("async", "").trim()[0] == "(") {
+                strf = strf.replace("async", "").trim()
+                strf.pull("async function");
+                strf = strf.replace("=>", "");
+                isArrow = true;
+            }
+
+
+
+            // if the function is async
+            let isAsync = strf.startsWith("async");
+
+
+
+            // start of the arguments
+            let start = strf.indexOf("(")+1;
+
+
+
+            // fix name
+            let rawName = strf.toString().slice(0, start-1).trim().replace("function", "").trim() // remove the function text and stuff
+            if (isAsync) rawName = rawName.replace("async", "").trim(); // if it's an async function remove the async
             
-        if (name) this.body = this.body.replace(`${name}`, "").trim() // remove the name of the function
-        
-        if (argsExist) this.body = this.body.replace(`(${ (argsCopy.toString()) ? argsCopy.toString() : "" })`, "").trim() // remove the arguments
-        else this.body = this.body.replace("()", "").trim();
-        
-        this.body = this.body.slice(1, this.body.length-1).trim(); // remove the brackets
+
+            let name = (rawName != "") ? rawName : null; // name of the function
+            let dataName = (f.name != "") ? f.name : null; // name of the original function
+            
 
 
-        // function arguments
-        this.arguments = Soup.from(fnr)
-            .map( (k, v, i) => (typeof v == "string") ? v.trim() : v) // remove white space in values
-            .mapKeys( (k, v, i) => (typeof k == "string") ? k.trim() : k ) // remove white space in keys
-            .pour(); // pour down into an object
+            // separating the arguments
+            let stra = Noodle.from( 
 
-        
-        // if it's an async function    
-        this.isAsync = isAsync;
+                ( Soup.from((
+                    (s=strf.replace("function", "").trim()) => {
 
 
-        // if it's an arrow function
-        this.isArrow = isArrow;
+                        if (isAsync) s = s.replace("async", "").trim();
+                        if (name) s = s.replace(name, "").trim();
 
 
-        // function data
-        this.data = f;
+                        let scopes = {
+                            left: [ 
+                                "("
+                            ],
+                            right: [ 
+                                ")"
+                            ]
+                        };
 
 
-        // a string version of the function
-        this.string = strf.toString();
+                        s = s.substring(1, s.length - 1).trim();
+
+
+                        let scope = ``;
+                        let collector = ``;
+                        let stuff = [];
+
+
+                        for (let i = 0; i < s.length; i++) { // loop through string
+                            let char = s[i];
+
+                        
+                            if (scopes.left.includes(char) && (!scopes.right.includes(char) || !scope.endsWith(char))) scope += char;
+                            else if (scopes.right.includes(char) && scope.endsWith(scopes.left[scopes.right.indexOf(char)])) scope = scope.substring(0, scope.length - 1);
+                    
+
+                            if (!scope && char.match(/\)/g) && (() => { 
+
+                                for (let n = i; n < s.replace(/ +(?= )/g, "").length; n++) {
+                                    let next = s.replace(/ +(?= )/g, "")[n];
+                                    if (next == "{") return true;
+                                }
+
+                                return false;
+
+                            })()) {
+                                const value = collector.split(/\)/g);
+
+                                collector = ``
+                                stuff.push(value);
+
+                            } else collector += char;
+                        }
+
+
+                        if (scope) err("Scope for isolating arguments didn't end.");
+
+
+                        else {
+                            const value = collector;
+
+                            collector = ``;
+                            stuff.push(value.trim());
+                        }
+
+                        return stuff;
+                    }
+                )())
+
+                .filter( (v, i) => {
+                    return v instanceof Array;
+                })
+
+                .map( (v, i) => {
+                    return v.join(" ").trim();
+                })
+
+                .join(" ")
+            ));
+
+
+
+            // if arguments exist
+            let argsExist = stra.length > 0 || (eval(`"${stra.content}"`).length > 0 && stra.content)
+
+
+
+            // if arguments exist bunch them up
+            if (argsExist) stra = stra.bunch();
+
+
+
+            // creates a shallow copy of the arguments for use in the body
+            let argsCopy = stra.toString();
+
+
+
+            // function variables
+            var args = {};
+
+
+
+            // loop
+            if (argsExist) { 
+
+
+                let chars = new Soup({
+                    '{': `}`,
+                    '[': `]`,
+                    '(': `)`,
+                    '"': `"`,
+                    "'": `'`,
+                    '`': '`'
+                });
+
+
+                let scopes = {
+                    left: chars.keys,
+                    right: chars.values
+                };
+                
+
+                let stuff = `{ ${stra} }`;
+                let s = stuff.substring(1, stuff.length - 1).trim();
+            
+
+                let scope = ``;
+                let collector = ``;
+
+
+                for (let char of s) { // loop through string
+                    
+                    
+                    // checking scopes
+                    if (scopes.left.includes(char) && (!scopes.right.includes(char) || !scope.endsWith(char))) scope += char;
+                    else if (scopes.right.includes(char) && scope.endsWith(scopes.left[scopes.right.indexOf(char)])) scope = scope.substring(0, scope.length - 1);
+
+
+                    // error thing
+                    else if (scopes.right.includes(char) && !hasStringChar(scope)) err("A character in the scope is not a valid string." );
+            
+
+                    if (!scope && char == `,`) { // go to next key/value pair
+                        const [key, ...value] = collector.split(`=`);
+
+                        if (value.length <= 0) value.push('null');
+
+                        collector = ``
+                        args[key.trim()] = value.join(`=`)
+
+                    } else collector += char
+                }
+            
+
+                if (scope) err("Scope for parsing and formatting arguments didn't end.");
+
+
+                else {
+                    const [key, ...value] = collector.split(`=`);
+
+                    if (value.length <= 0) value.push('null');
+
+                    collector = ``;
+                    args[key.trim()] = value.join(`=`);
+                }
+
+
+                args = new Soup(args)
+                
+
+                .map( (k, v, i) => {
+                    return new Function(`return ${v};`)();
+                })
+
+
+                .pour();
+            }
+
+
+
+            this.name = name; // name of the function
+            this.dataName = dataName; // name of the original function
+
+
+
+            // body of the function
+            this.body = strf.toString()
+                .replace("function", "").trim() // remove the function text
+
+            if (isAsync) this.body = this.body.replace("async", "").trim(); // remove the async text  
+            
+
+            if (name) this.body = this.body.replace(`${name}`, "").trim() // remove the name of the function
+
+
+            if (argsExist) this.body = this.body.replace(`(${ (argsCopy.toString()) ? argsCopy.toString() : "" })`, "").trim() // remove the arguments
+            else this.body = this.body.replace("()", "").trim();
+            
+
+            this.body = this.body.slice(1, this.body.length-1).trim(); // remove the brackets
+
+
+
+            // function arguments
+            this.arguments = Soup.from(args)
+                .map( (k, v, i) => (typeof v == "string") ? v.trim().replace(/ +(?= )/g, "") : v) // remove white space in values
+                .mapKeys( (k, v, i) => (typeof k == "string") ? k.trim().replace(/ +(?= )/g, "") : k ) // remove white space in keys
+                .pour(); // pour down into an object
+
+            
+
+
+            // if it's an async function    
+            this.isAsync = isAsync;
+
+
+
+            // if it's an arrow function
+            this.isArrow = isArrow;
+
+
+
+            // function data
+            this.data = f;
+
+
+
+            // a string version of the function
+            this.string = strf.toString();
+
+
+            this.pending = false;
+
+
+            penders.forEach( p => p(this) );
+        });
     }
 }
 
 
 
 // exports
-module.exports = { FunctionData, fetch(f) {
-    return new FunctionData(f);
-}};
+module.exports = { 
+    FunctionData: cl.init("FunctionData", FunctionData), 
+
+    fetch(f, callback) {
+        return (new FunctionData(f, callback));
+    }
+};
