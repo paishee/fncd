@@ -36,18 +36,24 @@ const err = ( message ) => {
 
 // function data class
 class FunctionData {
-    constructor(f, callback) {
+    constructor(f, callback, catcher) {
         if (!f) err("No function given");
 
 
         // pending stuff
         this.pending = true;
         var penders = [];
+        var catchers = [];
 
 
         // then function
         this.__proto__.then = (callback) => { penders.push(callback); return callback };
         if (callback) this.then(callback);
+
+
+        // catch function
+        this.__proto__.catch = (callback) => { catchers.push(callback); return callback };
+        if (catcher) this.catch(catcher);
 
 
         // inspect function
@@ -62,7 +68,7 @@ class FunctionData {
 
 
         // immediately get the main code is ran it actually gets the data that way it doesn't delay code
-        setImmediate( () => {
+        setImmediate( () => {try {
 
 
             // turn the function into a string and remove duplicate spaces
@@ -118,7 +124,7 @@ class FunctionData {
             let stra = Noodle.from( 
 
                 ( Soup.from((
-                    (s=strf.replace("function", "").trim()) => {
+                    (s=strf.replace("function", "").trim().replaceAll("/*", "").replaceAll("*/", "").replaceAll("//", "")) => {
 
 
                         if (isAsync) s = s.replace("async", "").trim();
@@ -245,7 +251,8 @@ class FunctionData {
                 let collector = ``;
 
 
-                for (let char of s) { // loop through string
+                for (let i = 0; i < s.length; i++) { // loop through string
+                    let char = s[i];
                     
                     
                     // checking scopes
@@ -254,7 +261,7 @@ class FunctionData {
 
 
                     // error thing
-                    else if (scopes.right.includes(char) && !hasStringChar(scope)) err("A character in the scope is not a valid string." );
+                    else if (scopes.right.includes(char) && !hasStringChar(scope)) err(`'${char}' is not a valid string in the formatting scope. (${name}:${i})`);
             
 
                     if (!scope && char == `,`) { // go to next key/value pair
@@ -269,6 +276,7 @@ class FunctionData {
                 }
             
 
+                console.log(scope);
                 if (scope) err("Scope for parsing and formatting arguments didn't end.");
 
 
@@ -354,7 +362,10 @@ class FunctionData {
 
 
             penders.forEach( p => p(this) );
-        });
+        } catch(e) {
+            this.pending = false;
+            catchers.forEach( c => c(e, this) );
+        }});
     }
 }
 
@@ -365,8 +376,8 @@ module.exports = {
     
     FunctionData: cl.init("FunctionData", FunctionData), 
 
-    fetch(f, callback) {
-        return (new FunctionData(f, callback));
+    fetch(f, callback, catcher) {
+        return new FunctionData(f, callback, catcher);
     }
     
 };
