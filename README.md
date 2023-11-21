@@ -1,7 +1,6 @@
 # fndt
 JavaScript package allowing you to see function data like body and arguments from outside of the function<br>
-it uses string scoping to isolate and separate arguments then bunches them all into one simple class for your use<br>
-it has both asynchronous and synchronous parts
+it uses string scoping to isolate and separate arguments then bunches them all into one simple class for your use
 
 - easy to use
 - open source
