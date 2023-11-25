@@ -1,6 +1,6 @@
 {
     "name": "fndt",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "author": "paishee",
     "description": "JavaScript package allowing you to see function data like body and arguments from outside of the function",
     "repository": {
