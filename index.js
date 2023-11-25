@@ -384,12 +384,12 @@ module.exports = {
 
     
     fetch(...args) {
-        return new FunctionData(false, ...args);
+        return new this.FunctionData(false, ...args);
     },
 
 
     fetchSync(...args) {
-        return new FunctionData(true, ...args);
+        return new this.FunctionData(true, ...args);
     }
     
 };
